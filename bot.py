@@ -7,6 +7,7 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 Api_key = os.environ.get("API_KEY")
 bot = telebot.TeleBot(BOT_TOKEN)
 
+
 # This gets the most recent news from the api and returns returns the json or the string
 def get_daily_news(search: str):
     url = f"https://newsapi.org/v2/everything?q=${search}&sortBy=popularity&apiKey=3fc3482200ca420dace9c853f28540a9"
@@ -16,11 +17,12 @@ def get_daily_news(search: str):
     else:
         return "No result found"
 
+
 # This fetches the news and sends it to the user
 def fetch_daily_news(message):
     """
         This fetches the json object returned by the get_daily_news method
-        
+
     Args:
         message (string): This is a type of string the message text
     """
@@ -28,17 +30,17 @@ def fetch_daily_news(message):
     result = get_daily_news(search)
     articles = result.get("articles")
     total_result = result.get("totalResults")
+    bot.send_message(message.chat.id, "Here is the result")
     if total_result != 0:
         for article in articles:
-            author = article.get("author")
             title = article.get("title")
             description = article.get("description")
             url = article.get("url")
-            published_at = article.get("publishedAt")
             content = article.get("content")
-        news_message = f"Auhor:{author}\n*Title:{title}*\nDescription:{description}\nContent:{content}\nPublished At: {published_at}\nCountinue reading:{url}"  # noqa: E501
-        bot.send_message(message.chat.id, "Here is the result")
-        bot.send_message(message.chat.id, news_message, parse_mode="Markdown")
+            news_message = (
+                f"*{title}*\n_{description} {content[:150]}_\n{url}"  # noqa: E501
+            )
+            bot.send_message(message.chat.id, news_message, parse_mode="Markdown")
     else:
         bot.send_message(message.chat.id, "No result found")
 
